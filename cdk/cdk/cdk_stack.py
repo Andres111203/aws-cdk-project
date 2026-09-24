@@ -45,3 +45,10 @@ class CdkStack(Stack):
                 type=dynamodb.AttributeType.STRING
             )
         )
+
+        app_role = iam.Role(self, "AppRole",
+            assumed_by=iam.ServicePrincipal("ec2.amazonaws.com")
+        )
+
+        s3_bucket.grant_write(app_role)
+        table.grant_read_data(app_role)
