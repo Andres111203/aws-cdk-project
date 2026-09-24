@@ -7,7 +7,8 @@ from aws_cdk import (
     aws_cloudfront as cloudfront,
     aws_cloudfront_origins as origins,
     aws_dynamodb as dynamodb,
-    aws_iam as iam
+    aws_iam as iam,
+    aws_s3_deployment as s3_deployment
 
 )
 from constructs import Construct
@@ -35,10 +36,11 @@ class CdkStack(Stack):
 
         cloudfront.Distribution(self, "distro",
             default_behavior=cloudfront.BehaviorOptions(
-                origin=origins.S3Origin(s3_bucket),
-            )
+                origin=origins.S3BucketOrigin.with_origin_access_control(s3_bucket),
+            ),
+            default_root_object="index.html"
         )
-
+        
         table = dynamodb.Table(self, "Table",
             partition_key=dynamodb.Attribute(
                 name="studentId",
@@ -52,3 +54,9 @@ class CdkStack(Stack):
 
         s3_bucket.grant_write(app_role)
         table.grant_read_data(app_role)
+
+        s3_deployment.BucketDeployment(self, "DeployWebsite",
+            sources=[s3_deployment.Source.asset("website")],
+            destination_bucket=s3_bucket
+        )
+      
