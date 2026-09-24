@@ -5,7 +5,9 @@ from aws_cdk import (
     RemovalPolicy,
     aws_s3 as s3,
     aws_cloudfront as cloudfront,
-    aws_cloudfront_origins as origins
+    aws_cloudfront_origins as origins,
+    aws_dynamodb as dynamodb,
+    aws_iam as iam
 
 )
 from constructs import Construct
@@ -34,5 +36,12 @@ class CdkStack(Stack):
         cloudfront.Distribution(self, "distro",
             default_behavior=cloudfront.BehaviorOptions(
                 origin=origins.S3Origin(s3_bucket),
+            )
+        )
+
+        table = dynamodb.Table(self, "Table",
+            partition_key=dynamodb.Attribute(
+                name="studentId",
+                type=dynamodb.AttributeType.STRING
             )
         )
